@@ -10,6 +10,9 @@ import OpportunityPipeline from './components/OpportunityPipeline';
 import SiteVisitTracker from './components/SiteVisitTracker';
 import TopEngagedLeads from './components/TopEngagedLeads';
 import ReminderEscalation from './components/ReminderEscalation';
+import AddLeadModal from './components/AddLeadModal';
+import CreateOpportunityModal from './components/CreateOpportunityModal';
+import ScheduleVisitModal from './components/ScheduleVisitModal';
 
 import Button from '../../components/ui/Button';
 
@@ -17,6 +20,11 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Modal states
+  const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
+  const [isCreateOpportunityModalOpen, setIsCreateOpportunityModalOpen] = useState(false);
+  const [isScheduleVisitModalOpen, setIsScheduleVisitModalOpen] = useState(false);
 
   // Mock data
   const dashboardMetrics = [
@@ -255,19 +263,19 @@ const Dashboard = () => {
       label: 'Add New Lead',
       icon: 'UserPlus',
       variant: 'primary',
-      onClick: () => navigate('/leads-management')
-    },
-    {
-      label: 'Schedule Site Visit',
-      icon: 'Calendar',
-      variant: 'secondary',
-      onClick: () => navigate('/site-visits-scheduler')
+      onClick: () => setIsAddLeadModalOpen(true)
     },
     {
       label: 'Create Opportunity',
       icon: 'Target',
       variant: 'success',
-      onClick: () => navigate('/opportunities-management')
+      onClick: () => setIsCreateOpportunityModalOpen(true)
+    },
+    {
+      label: 'Schedule Site Visit',
+      icon: 'Calendar',
+      variant: 'secondary',
+      onClick: () => setIsScheduleVisitModalOpen(true)
     },
     {
       label: 'View Analytics',
@@ -299,6 +307,22 @@ const Dashboard = () => {
   const handleFollowUpComplete = (followUpId) => {
     console.log('Completing follow-up:', followUpId);
     // In real app, this would update the follow-up status
+  };
+
+  // Modal handlers
+  const handleLeadAdded = (newLead) => {
+    console.log('Lead added:', newLead);
+    // In real app, this would update the leads data and refresh metrics
+  };
+
+  const handleOpportunityCreated = (newOpportunity) => {
+    console.log('Opportunity created:', newOpportunity);
+    // In real app, this would update the opportunities data and refresh metrics
+  };
+
+  const handleVisitScheduled = (newVisit) => {
+    console.log('Visit scheduled:', newVisit);
+    // In real app, this would update the visits data and refresh metrics
   };
 
   return (
@@ -336,7 +360,7 @@ const Dashboard = () => {
               <Button
                 variant="primary"
                 iconName="Plus"
-                onClick={() => navigate('/leads-management')}
+                onClick={() => setIsAddLeadModalOpen(true)}
               >
                 Add Lead
               </Button>
@@ -442,6 +466,25 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* Modals */}
+      <AddLeadModal
+        isOpen={isAddLeadModalOpen}
+        onClose={() => setIsAddLeadModalOpen(false)}
+        onLeadAdded={handleLeadAdded}
+      />
+
+      <CreateOpportunityModal
+        isOpen={isCreateOpportunityModalOpen}
+        onClose={() => setIsCreateOpportunityModalOpen(false)}
+        onOpportunityCreated={handleOpportunityCreated}
+      />
+
+      <ScheduleVisitModal
+        isOpen={isScheduleVisitModalOpen}
+        onClose={() => setIsScheduleVisitModalOpen(false)}
+        onVisitScheduled={handleVisitScheduled}
+      />
     </div>
   );
 };
