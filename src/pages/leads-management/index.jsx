@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+
 import Header from '../../components/ui/Header';
 import LeadFilters from './components/LeadFilters';
 import LeadActionBar from './components/LeadActionBar';
@@ -8,6 +10,8 @@ import LeadProfileModal from './components/LeadProfileModal';
 import MobileLeadCard from './components/MobileLeadCard';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
+
+const API_URL = "http://localhost:5000/api/leads";
 
 const LeadsManagement = () => {
   const location = useLocation();
@@ -21,182 +25,29 @@ const LeadsManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [leadsPerPage] = useState(20);
 
-  // Mock data for leads
-  const mockLeads = [
-    {
-      id: 1,
-      name: "Rajesh Kumar",
-      phone: "+91 98765 43210",
-      email: "rajesh.kumar@email.com",
-      source: "Housing.com",
-      project: "Skyline Residences",
-      assignedTo: "John Doe",
-      status: "qualified",
-      nurturingStage: "week2",
-      nurturingProgress: 65,
-      lastContact: "2024-01-20",
-      lastContactType: "WhatsApp",
-      createdDate: "2024-01-15",
-      budget: "45-55 Lakhs",
-      unitType: "2 BHK",
-      timeline: "3-6 months",
-      followUpStatus: "today"
-    },
-    {
-      id: 2,
-      name: "Priya Sharma",
-      phone: "+91 87654 32109",
-      email: "priya.sharma@email.com",
-      source: "Website",
-      project: "Marina Heights",
-      assignedTo: "Sarah Smith",
-      status: "nurturing",
-      nurturingStage: "week1",
-      nurturingProgress: 30,
-      lastContact: "2024-01-19",
-      lastContactType: "Call",
-      createdDate: "2024-01-18",
-      budget: "60-70 Lakhs",
-      unitType: "3 BHK",
-      timeline: "6-12 months",
-      followUpStatus: "upcoming"
-    },
-    {
-      id: 3,
-      name: "Amit Patel",
-      phone: "+91 76543 21098",
-      email: "amit.patel@email.com",
-      source: "Referral",
-      project: "Garden View Apartments",
-      assignedTo: null,
-      status: "new",
-      nurturingStage: "not-started",
-      nurturingProgress: 0,
-      lastContact: "2024-01-21",
-      lastContactType: "Email",
-      createdDate: "2024-01-21",
-      budget: "35-45 Lakhs",
-      unitType: "2 BHK",
-      timeline: "1-3 months",
-      followUpStatus: "overdue"
-    },
-    {
-      id: 4,
-      name: "Sunita Reddy",
-      phone: "+91 65432 10987",
-      email: "sunita.reddy@email.com",
-      source: "MagicBricks",
-      project: "Skyline Residences",
-      assignedTo: "Mike Johnson",
-      status: "contacted",
-      nurturingStage: "week3-4",
-      nurturingProgress: 80,
-      lastContact: "2024-01-18",
-      lastContactType: "Site Visit",
-      createdDate: "2024-01-10",
-      budget: "50-60 Lakhs",
-      unitType: "2 BHK",
-      timeline: "3-6 months",
-      followUpStatus: "overdue"
-    },
-    {
-      id: 5,
-      name: "Vikram Singh",
-      phone: "+91 54321 09876",
-      email: "vikram.singh@email.com",
-      source: "Social Media",
-      project: "Downtown Plaza",
-      assignedTo: "Lisa Brown",
-      status: "converted",
-      nurturingStage: "completed",
-      nurturingProgress: 100,
-      lastContact: "2024-01-17",
-      lastContactType: "Booking",
-      createdDate: "2024-01-05",
-      budget: "80-90 Lakhs",
-      unitType: "3 BHK",
-      timeline: "Immediate",
-      followUpStatus: "completed"
-    },
-    {
-      id: 6,
-      name: "Meera Joshi",
-      phone: "+91 43210 98765",
-      email: "meera.joshi@email.com",
-      source: "Walk-in",
-      project: "Marina Heights",
-      assignedTo: "John Doe",
-      status: "disqualified",
-      nurturingStage: "paused",
-      nurturingProgress: 45,
-      lastContact: "2024-01-16",
-      lastContactType: "Call",
-      createdDate: "2024-01-12",
-      budget: "Below Budget",
-      unitType: "1 BHK",
-      timeline: "Not Decided",
-      followUpStatus: "completed"
-    },
-    {
-      id: 7,
-      name: "Arjun Nair",
-      phone: "+91 32109 87654",
-      email: "arjun.nair@email.com",
-      source: "Housing.com",
-      project: "Garden View Apartments",
-      assignedTo: "Sarah Smith",
-      status: "qualified",
-      nurturingStage: "month2",
-      nurturingProgress: 90,
-      lastContact: "2024-01-20",
-      lastContactType: "WhatsApp",
-      createdDate: "2023-12-15",
-      budget: "40-50 Lakhs",
-      unitType: "2 BHK",
-      timeline: "1-3 months",
-      followUpStatus: "today"
-    },
-    {
-      id: 8,
-      name: "Kavya Menon",
-      phone: "+91 21098 76543",
-      email: "kavya.menon@email.com",
-      source: "Website",
-      project: "Skyline Residences",
-      assignedTo: null,
-      status: "new",
-      nurturingStage: "not-started",
-      nurturingProgress: 0,
-      lastContact: "2024-01-21",
-      lastContactType: "Form Submission",
-      createdDate: "2024-01-21",
-      budget: "55-65 Lakhs",
-      unitType: "3 BHK",
-      timeline: "6-12 months",
-      followUpStatus: "upcoming"
-    }
-  ];
-
+  // Fetch leads from backend
   useEffect(() => {
-    // Initialize leads data
-    setLeads(mockLeads);
-    setFilteredLeads(mockLeads);
+    axios.get(API_URL)
+      .then(res => {
+        setLeads(res.data);
+        setFilteredLeads(res.data);
+      })
+      .catch(err => {
+        console.error("Failed to fetch leads:", err);
+      });
 
     // Check for mobile view
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-
     checkMobile();
     window.addEventListener('resize', checkMobile);
 
     // Handle drill-down navigation from dashboard
     const urlParams = new URLSearchParams(location.search);
     const filterParam = urlParams.get('filter');
-    
     if (filterParam) {
       let initialFilters = {};
-      
       switch (filterParam) {
         case 'today-followups':
           initialFilters = { followUpStatus: ['today'] };
@@ -211,11 +62,11 @@ const LeadsManagement = () => {
         default:
           break;
       }
-      
       setFilters(initialFilters);
     }
 
     return () => window.removeEventListener('resize', checkMobile);
+    // eslint-disable-next-line
   }, [location.search]);
 
   useEffect(() => {
@@ -233,13 +84,13 @@ const LeadsManagement = () => {
 
     if (filters.sources && filters.sources.length > 0) {
       filtered = filtered.filter(lead =>
-        filters.sources.some(source => lead.source.toLowerCase().includes(source))
+        filters.sources.some(source => lead.source?.toLowerCase().includes(source))
       );
     }
 
     if (filters.projects && filters.projects.length > 0) {
       filtered = filtered.filter(lead =>
-        filters.projects.some(project => lead.project.toLowerCase().includes(project))
+        filters.projects.some(project => lead.project?.toLowerCase().includes(project))
       );
     }
 
@@ -308,62 +159,42 @@ const LeadsManagement = () => {
 
   const handleSelectAll = () => {
     const currentPageLeads = getCurrentPageLeads();
-    const allSelected = currentPageLeads.every(lead => selectedLeads.includes(lead.id));
-    
+    const allSelected = currentPageLeads.every(lead => selectedLeads.includes(lead._id));
     if (allSelected) {
-      setSelectedLeads(prev => prev.filter(id => !currentPageLeads.map(l => l.id).includes(id)));
+      setSelectedLeads(prev => prev.filter(id => !currentPageLeads.map(l => l._id).includes(id)));
     } else {
-      setSelectedLeads(prev => [...new Set([...prev, ...currentPageLeads.map(l => l.id)])]);
+      setSelectedLeads(prev => [...new Set([...prev, ...currentPageLeads.map(l => l._id)])]);
     }
   };
 
-  const handleBulkAction = (action, leadIds, data) => {
-    console.log('Bulk action:', action, 'for leads:', leadIds, 'with data:', data);
-    
+  const handleBulkAction = async (action, leadIds, data) => {
     switch (action) {
       case 'assign':
-        // Update leads with new assignment
-        setLeads(prev => prev.map(lead =>
-          leadIds.includes(lead.id)
-            ? { ...lead, assignedTo: data.name }
-            : lead
+        // Update assignment in backend
+        await Promise.all(leadIds.map(leadId => 
+          axios.put(`${API_URL}/${leadId}`, { assignedTo: data.name })
         ));
-        break;
-      case 'update-status':
-        // Handle status update
-        break;
-      case 'start-nurturing':
-        // Handle nurturing start
+        refreshLeads();
         break;
       case 'delete':
-        // Handle deletion
-        setLeads(prev => prev.filter(lead => !leadIds.includes(lead.id)));
+        // Delete leads in backend
+        await Promise.all(leadIds.map(leadId =>
+          axios.delete(`${API_URL}/${leadId}`)
+        ));
+        refreshLeads();
         break;
       default:
         break;
     }
-    
     setSelectedLeads([]);
   };
 
   const handleLeadAction = (leadId, action) => {
-    const lead = leads.find(l => l.id === leadId);
-    
+    const lead = leads.find(l => l._id === leadId);
     switch (action) {
       case 'view-profile':
         setSelectedLead(lead);
         setIsProfileModalOpen(true);
-        break;
-      case 'call': console.log('Initiating call for lead:', leadId);
-        break;
-      case 'whatsapp': console.log('Sending WhatsApp message to lead:', leadId);
-        break;
-      case 'qualify':
-        console.log('Updating qualification status for lead:', leadId);
-        break;
-      case 'convert': console.log('Converting lead to opportunity:', leadId);
-        break;
-      case 'assign': console.log('Reassigning lead:', leadId);
         break;
       default:
         break;
@@ -371,21 +202,26 @@ const LeadsManagement = () => {
   };
 
   const handleUpdateLead = (updatedLead) => {
-    setLeads(prev => prev.map(lead =>
-      lead.id === updatedLead.id ? updatedLead : lead
-    ));
-    setSelectedLead(updatedLead);
+    axios.put(`${API_URL}/${updatedLead._id}`, updatedLead)
+      .then(res => {
+        setLeads(prev => prev.map(lead =>
+          lead._id === updatedLead._id ? res.data : lead
+        ));
+        setFilteredLeads(prev => prev.map(lead =>
+          lead._id === updatedLead._id ? res.data : lead
+        ));
+        setSelectedLead(res.data);
+      })
+      .catch(err => {
+        console.error("Failed to update lead:", err);
+      });
   };
 
   const handleImportLeads = () => {
-    console.log('Importing leads from Housing.com API');
-    // Simulate API import
     alert('Lead import functionality would integrate with Housing.com API');
   };
 
   const handleExportLeads = () => {
-    console.log('Exporting leads data');
-    // Simulate export
     alert('Exporting leads data to CSV/Excel');
   };
 
@@ -402,11 +238,19 @@ const LeadsManagement = () => {
     setSelectedLeads([]);
   };
 
+  // Helper to refresh leads from backend
+  const refreshLeads = () => {
+    axios.get(API_URL)
+      .then(res => {
+        setLeads(res.data);
+        setFilteredLeads(res.data);
+      });
+  };
+
   // Get drill-down context for display
   const getDrillDownContext = () => {
     const urlParams = new URLSearchParams(location.search);
     const filterParam = urlParams.get('filter');
-    
     switch (filterParam) {
       case 'today-followups':
         return { title: "Today's Follow-ups", description: "Leads requiring follow-up today" };
@@ -424,7 +268,6 @@ const LeadsManagement = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
       <div className="pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Page Header */}
@@ -441,7 +284,6 @@ const LeadsManagement = () => {
                 : 'Track, qualify, and nurture leads across multiple projects with automated WhatsApp integration'
               }
             </p>
-            
             {/* Drill-down breadcrumb */}
             {drillDownContext && (
               <div className="flex items-center space-x-2 mt-2 text-sm">
@@ -456,7 +298,6 @@ const LeadsManagement = () => {
               </div>
             )}
           </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Filters Sidebar */}
             <div className="lg:col-span-3">
@@ -466,7 +307,6 @@ const LeadsManagement = () => {
                 onClearFilters={handleClearFilters}
               />
             </div>
-
             {/* Main Content */}
             <div className="lg:col-span-9">
               {/* Action Bar */}
@@ -476,7 +316,6 @@ const LeadsManagement = () => {
                 onImportLeads={handleImportLeads}
                 onExportLeads={handleExportLeads}
               />
-
               {/* Results Summary */}
               <div className="mb-4 flex items-center justify-between">
                 <div className="text-sm text-text-secondary">
@@ -487,7 +326,6 @@ const LeadsManagement = () => {
                     </span>
                   )}
                 </div>
-                
                 {/* View Toggle for Mobile */}
                 {isMobile && (
                   <div className="flex items-center space-x-2">
@@ -498,17 +336,16 @@ const LeadsManagement = () => {
                   </div>
                 )}
               </div>
-
               {/* Leads Display */}
               {isMobile ? (
                 <div className="space-y-4">
                   {getCurrentPageLeads().map((lead) => (
                     <MobileLeadCard
-                      key={lead.id}
+                      key={lead._id}
                       lead={lead}
                       onLeadSelect={handleLeadSelect}
                       onLeadAction={handleLeadAction}
-                      isSelected={selectedLeads.includes(lead.id)}
+                      isSelected={selectedLeads.includes(lead._id)}
                     />
                   ))}
                 </div>
@@ -522,7 +359,6 @@ const LeadsManagement = () => {
                   onLeadAction={handleLeadAction}
                 />
               )}
-
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="mt-6 flex items-center justify-between">
@@ -539,7 +375,6 @@ const LeadsManagement = () => {
                     >
                       Previous
                     </Button>
-                    
                     {/* Page Numbers */}
                     <div className="flex items-center space-x-1">
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -559,7 +394,6 @@ const LeadsManagement = () => {
                         );
                       })}
                     </div>
-                    
                     <Button
                       variant="outline"
                       size="sm"
@@ -577,7 +411,6 @@ const LeadsManagement = () => {
           </div>
         </div>
       </div>
-
       {/* Lead Profile Modal */}
       <LeadProfileModal
         lead={selectedLead}
